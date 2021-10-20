@@ -99,18 +99,14 @@ export default {
 				{ key: 'TimeCompleted', formatter: (value) => value ? (new Date(value)).toLocaleString() : 'n/a', sortable: true },
 				{ key: 'Delete', label: '', sortable: false }
 			],
-			jobs: [
-				{ Filename: 'Job 1234', Hostname: 'Foo', TimeCreated: new Date(), Progress: 0.123, TimeLeft: '30m 21s', TimeCompleted: new Date() }
-			],
+			jobs: [],
 			printerFields: [
 				{ key: 'Hostname', sortable: true },
 				{ key: 'Online', formatter: (value) => value ? 'Yes' : 'No', sortable: true },
 				{ key: 'JobFile', formatter: (value) => value ? value : 'none', sortable: true },
 				{ key: 'Delete', label: '', sortable: false }
 			],
-			printers: [
-				{ Hostname: 'MyHost', Online: true, JobFile: null }
-			]
+			printers: []
 		}
     },
 	mounted() {
