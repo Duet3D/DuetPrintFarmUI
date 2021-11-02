@@ -2,7 +2,7 @@
 
 const defaultRequestTimeout = 4000;
 
-const baseUrl = (process.env.NODE_ENV === 'production') ? `${location.protocol}//${location.host}/` : 'http://192.168.1.159:5000/';
+const baseUrl = (process.env.NODE_ENV === 'production') ? `${location.protocol}//${location.host}/` : 'http://192.168.1.173:5000/';
 
 function request(method, url, params = null, body = null, timeout = defaultRequestTimeout) {
 	let internalURL = baseUrl + url;

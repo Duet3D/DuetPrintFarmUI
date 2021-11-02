@@ -1,4 +1,9 @@
-# duetprintfarmui
+# DuetPrintFarmUI
+
+This project is the web frontend for the [DuetPrintFarm](https://github.com/Duet3D/DuetPrintFarm) project.
+The built files belong into `DuetPrintFarm/wwwroot`.
+
+This project is licensed under the terms of the GPLv3.
 
 ## Project setup
 ```
@@ -19,6 +24,3 @@ npm run build
 ```
 npm run lint
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

@@ -1,5 +1,5 @@
 <template>
-	<b-button :loading="isBusy" size="sm" variant="primary" @click="chooseFile">
+	<b-button :disabled="disabled" :loading="isBusy" size="sm" variant="primary" @click="chooseFile">
 		<b-icon icon="cloud-upload"></b-icon> Upload File
 		<input ref="fileInput" type="file" accept=".g,.gcode,.gc,.gco,.nc,.ngc,.tap" hidden @change="fileSelected">
 	</b-button>
@@ -11,6 +11,12 @@
 import { addFile } from '../requests.js'
 
 export default {
+	props: {
+		disabled: {
+			default: false,
+			type: Boolean
+		}
+	},
 	data() {
 		return {
 			isBusy: false
