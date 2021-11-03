@@ -51,21 +51,46 @@ function request(method, url, params = null, body = null, timeout = defaultReque
 	});
 }
 
+// Job Queue
 
 export function getQueue() { return request('GET', 'printFarm/queue') }
-
-export function getPrinters() { return request('GET', 'printFarm/printers') }
-
-export function addPrinter(hostname) { return request('PUT', 'printFarm/printer', { hostname }) }
-
-export function deletePrinter(hostname) { return request('DELETE', 'printFarm/printer', { hostname }) }
 
 export function addFile(filename, content) {
 	const payload = (content instanceof(Blob)) ? content : new Blob([content]);
 	return request('PUT', 'printFarm/job', { filename }, payload, 0)
 }
 
+export function pauseFile(filename) { return request('POST', 'printFarm/pause', { filename }) }
+
+export function pauseFileByIndex(index) { return request('POST', 'printFarm/pause', { index }) }
+
+export function resumeFile(filename) { return request('POST', 'printFarm/resume', { filename }) }
+
+export function resumeFileByIndex(index) { return request('POST', 'printFarm/resume', { index }) }
+
+export function cancelFile(filename) { return request('POST', 'printFarm/cancel', { filename }) }
+
+export function cancelFileByIndex(index) { return request('POST', 'printFarm/cancel', { index }) }
+
+export function repeatFile(filename) { return request('POST', 'printFarm/repeat', { filename }) }
+
+export function repeatFileByIndex(index) { return request('POST', 'printFarm/repeat', { index }) }
+
 export function deleteFile(filename) { return request('DELETE', 'printFarm/job', { filename }) }
 
 export function deleteFileByIndex(index) { return request('DELETE', 'printFarm/job', { index }) }
+
+export function cleanUp() { return request('POST', 'printFarm/cleanUp') }
+
+// Printers
+
+export function getPrinters() { return request('GET', 'printFarm/printers') }
+
+export function addPrinter(hostname) { return request('PUT', 'printFarm/printer', { hostname }) }
+
+export function suspendPrinter(hostname) { return request('POST', 'printFarm/suspendPrinter', { hostname }) }
+
+export function resumePrinter(hostname) { return request('POST', 'printFarm/resumePrinter', { hostname }) }
+
+export function deletePrinter(hostname) { return request('DELETE', 'printFarm/printer', { hostname }) }
 

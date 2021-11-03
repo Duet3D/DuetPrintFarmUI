@@ -1,7 +1,7 @@
 <template>
 	<b-button :disabled="disabled" :loading="isBusy" size="sm" variant="primary" @click="chooseFile">
 		<b-icon icon="cloud-upload"></b-icon> Upload File
-		<input ref="fileInput" type="file" accept=".g,.gcode,.gc,.gco,.nc,.ngc,.tap" hidden @change="fileSelected">
+		<input ref="fileInput" type="file" accept=".g,.gcode,.gc,.gco,.nc,.ngc,.tap" hidden multiple @change="fileSelected">
 	</b-button>
 </template>
 
@@ -29,15 +29,16 @@ export default {
 			}
 		},
 		async fileSelected(e) {
-			if (e.target.files.length > 0) {
-				try {
-					console.log(e.target.files[0]);
-					await addFile(e.target.files[0].name, e.target.files[0]);
-				} catch (e) {
-					alert('Upload failed!\n\n' + e.message);
+			this.isBusy = true;
+			try {
+				for (let i = 0; i < e.target.files.length; i++) {
+					await addFile(e.target.files[i].name, e.target.files[i]);
 				}
-				e.target.value = '';
+			} catch (e) {
+				alert('Upload failed!\n\n' + e.message);
 			}
+			e.target.value = '';
+			this.isBusy = false;
 		}
 	}
 }

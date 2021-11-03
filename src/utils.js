@@ -14,19 +14,19 @@ export function displayTime(value, showTrailingZeroes = false) {
 	if (value >= 3600) {
 		temp = Math.floor(value / 3600);
 		if (temp > 0) {
-			timeLeft.push(temp + "h");
+			timeLeft.push(temp + 'h');
 			value = value % 3600;
 		}
 	}
 	if (value >= 60) {
 		temp = Math.floor(value / 60);
 		if (temp > 0) {
-			timeLeft.push(((value > 9 || !showTrailingZeroes) ? temp : "0" + temp) + "m");
+			timeLeft.push(((value > 9 || !showTrailingZeroes) ? temp : '0' + temp) + 'm');
 			value = value % 60;
 		}
 	}
 	value = value.toFixed(0);
-	timeLeft.push(((value > 9 || !showTrailingZeroes) ? value : "0" + value) + "s");
+	timeLeft.push(((value > 9 || !showTrailingZeroes) ? value : '0' + value) + 's');
 
 	return timeLeft.join(' ');
 }
