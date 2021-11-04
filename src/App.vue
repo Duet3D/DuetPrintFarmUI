@@ -217,7 +217,7 @@ export default {
 		},
 		getPrinterName(hostname) {
 			const printer = this.printers.find(printer => printer.Hostname === hostname);
-			return (printer !== null) ? printer.Name : hostname;
+			return printer ? printer.Name : hostname;
 		},
 		getJobProgressVariant(item) {
 			if (item.TimeCompleted) {
