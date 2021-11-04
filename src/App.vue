@@ -154,7 +154,7 @@
 'use strict'
 
 
-import { getQueue, pauseFileByIndex, resumeFileByIndex, cancelFileByIndex, repeatFileByIndex, deleteFileByIndex, cleanUp } from './requests.js'
+import { getQueue, pauseFile, resumeFile, cancelFile, repeatFile, deleteFile, cleanUp } from './requests.js'
 import { getPrinters, suspendPrinter, resumePrinter, deletePrinter } from './requests.js'
 
 import { displayTime } from './utils.js'
@@ -215,8 +215,7 @@ export default {
 			if (item.TimeCompleted) {
 				return item.Cancelled ? 'danger' : 'success';
 			}
-			if (!item.Hostname || item.Paused || this.printers.some(printer => (printer.Hostname === item.Hostname) && 
-				(printer.Status === 'pausing') || (printer.Status === 'paused') || (printer.Status === 'resuming') || (printer.Status === 'cancelling'))
+			if (!item.Hostname || item.Paused || this.printers.some(printer => (printer.Hostname === item.Hostname) && ((printer.Status === 'pausing') || (printer.Status === 'paused') || (printer.Status === 'resuming') || (printer.Status === 'cancelling')))
 			) {
 				return 'warning';
 			}
@@ -259,7 +258,7 @@ export default {
 		},
 		async pauseFile(index) {
 			try {
-				await pauseFileByIndex(index);
+				await pauseFile(index);
 				this.jobs = await getQueue();
 			} catch (e) {
 				alert(`Failed to pause file!\n\n${e.message}`);
@@ -267,7 +266,7 @@ export default {
 		},
 		async resumeFile(index) {
 			try {
-				await resumeFileByIndex(index);
+				await resumeFile(index);
 				this.jobs = await getQueue();
 			} catch (e) {
 				alert(`Failed to resume file!\n\n${e.message}`);
@@ -275,7 +274,7 @@ export default {
 		},
 		async cancelFile(index) {
 			try {
-				await cancelFileByIndex(index);
+				await cancelFile(index);
 				this.jobs = await getQueue();
 			} catch (e) {
 				alert(`Failed to cancel file!\n\n${e.message}`);
@@ -283,7 +282,7 @@ export default {
 		},
 		async repeatFile(index) {
 			try {
-				await repeatFileByIndex(index);
+				await repeatFile(index);
 				this.jobs = await getQueue();
 			} catch (e) {
 				alert(`Failed to repeat file!\n\n${e.message}`);
@@ -291,7 +290,7 @@ export default {
 		},
 		async deleteFile(index) {
 			try {
-				await deleteFileByIndex(index);
+				await deleteFile(index);
 				this.jobs = await getQueue();
 			} catch (e) {
 				alert(`Failed to delete file!\n\n${e.message}`);

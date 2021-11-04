@@ -60,25 +60,15 @@ export function addFile(filename, content) {
 	return request('PUT', 'printFarm/job', { filename }, payload, 0)
 }
 
-export function pauseFile(filename) { return request('POST', 'printFarm/pause', { filename }) }
+export function pauseFile(index) { return request('POST', 'printFarm/pause', { index }) }
 
-export function pauseFileByIndex(index) { return request('POST', 'printFarm/pause', { index }) }
+export function resumeFile(index) { return request('POST', 'printFarm/resume', { index }) }
 
-export function resumeFile(filename) { return request('POST', 'printFarm/resume', { filename }) }
+export function cancelFile(index) { return request('POST', 'printFarm/cancel', { index }) }
 
-export function resumeFileByIndex(index) { return request('POST', 'printFarm/resume', { index }) }
+export function repeatFile(index) { return request('POST', 'printFarm/repeat', { index }) }
 
-export function cancelFile(filename) { return request('POST', 'printFarm/cancel', { filename }) }
-
-export function cancelFileByIndex(index) { return request('POST', 'printFarm/cancel', { index }) }
-
-export function repeatFile(filename) { return request('POST', 'printFarm/repeat', { filename }) }
-
-export function repeatFileByIndex(index) { return request('POST', 'printFarm/repeat', { index }) }
-
-export function deleteFile(filename) { return request('DELETE', 'printFarm/job', { filename }) }
-
-export function deleteFileByIndex(index) { return request('DELETE', 'printFarm/job', { index }) }
+export function deleteFile(index) { return request('DELETE', 'printFarm/job', { index }) }
 
 export function cleanUp() { return request('POST', 'printFarm/cleanUp') }
 
