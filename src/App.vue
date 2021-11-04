@@ -123,9 +123,9 @@
 				</b-alert>
 
 				<b-table v-show="printers.length > 0" striped hover :fields="printerFields" :items="printers" class="mb-0 printer-table">
-					<template #cell(Hostname)="{ item }">
+					<template #cell(Name)="{ item }">
 						<b-icon :icon="getPrinterIcon(item)"></b-icon>
-						{{ item.Hostname }}
+						{{ item.Name }}
 						<status-label :status="item.Status" class="ml-1"></status-label>
 					</template>
 					<template #cell(Online)="{ item }">
@@ -180,6 +180,7 @@ export default {
 			jobs: [],
 			currentJobPage: 1,
 			printerFields: [
+				{ key: 'Name', sortable: true },
 				{ key: 'Hostname', sortable: true },
 				{ key: 'Online', sortable: true },
 				{ key: 'JobFile', formatter: (value) => value ? value : 'none', sortable: true },
