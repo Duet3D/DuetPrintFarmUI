@@ -76,6 +76,9 @@
 						<b-icon :icon="getJobIcon(item)" :icon-props="{ fontScale: 2 }"></b-icon>
 						{{ item.Filename }}
 					</template>
+					<template #cell(Hostname)="{ item }">
+						{{ getPrinterName(item.Hostname) }}
+					</template>
 					<template #cell(Progress)="{ item }">
 						<span v-if="!!item.ProgressText" v-text="item.ProgressText"></span>
 						<b-progress v-else-if="item.Progress !== null || item.TimeCompleted" :max="1" show-progress :animated="!item.TimeCompleted" :variant="getJobProgressVariant(item)">
@@ -211,6 +214,10 @@ export default {
 				return 'play-fill';
 			}
 			return 'asterisk';
+		},
+		getPrinterName(hostname) {
+			const printer = this.printers.find(printer => printer.Hostname === hostname);
+			return (printer !== null) ? printer.Name : hostname;
 		},
 		getJobProgressVariant(item) {
 			if (item.TimeCompleted) {
