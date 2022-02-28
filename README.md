@@ -24,3 +24,7 @@ npm run build
 ```
 npm run lint
 ```
+
+## Bug reports
+
+Please use the [forum](https://forum.duet3d.com) for support requests or the [DuetPrintFarm](https://github.com/Duet3D/DuetPrintFarm) GitHub repository for feature requests and bug reports.
