@@ -48,7 +48,7 @@
                 Duet3D Print Farm Overview
             </h1>
 
-            <b-alert :show="!!errorMessage" variant="danger">
+            <b-alert :show="!!errorMessage" :variant="(errorMessage != null && errorMessage.startsWith('Error')) ? 'danger' : 'warning'">
                 <b-icon icon="exclamation-triangle" class="mr-1"></b-icon> {{ errorMessage }}
             </b-alert>
 
@@ -176,7 +176,7 @@ export default {
 	},
 	data() {
 		return {
-			errorMessage: null,
+            errorMessage: 'Attemping to connect...',
 			jobFields: [
 				{ key: 'Filename' },
 				{ key: 'TimeCreated', formatter: (value) => value ? (new Date(value)).toLocaleString() : 'n/a' },
