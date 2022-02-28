@@ -10,7 +10,7 @@ export class Job {
 
     public AbsoluteFilename: string = '';
     public Filename: string = '';
-    public Hostname: string = '';
+    public Hostname: string | null = null;
     public TimeCreated: Date | null = null;
     public ProgressText: string | null = null;
     public Progress: number | null = null;
