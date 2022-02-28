@@ -14,7 +14,7 @@
 <script>
 'use strict'
 
-import { addPrinter } from '../requests.js'
+import { addPrinter } from '../api/requests.ts'
 
 export default {
 	props: {

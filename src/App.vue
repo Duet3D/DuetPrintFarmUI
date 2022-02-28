@@ -159,181 +159,197 @@
 	</div>
 </template>
 
-<script>
-'use strict'
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator';
+import { BvTableFieldArray } from "bootstrap-vue/src/components/table";
 
+import { getQueue, pauseFile, resumeFile, cancelFile, repeatFile, deleteFile, cleanUp } from './api/requests'
+import { getPrinters, suspendPrinter, resumePrinter, deletePrinter } from './api/requests'
+import { Job, Printer } from './api/types';
 
-import { getQueue, pauseFile, resumeFile, cancelFile, repeatFile, deleteFile, cleanUp } from './requests.js'
-import { getPrinters, suspendPrinter, resumePrinter, deletePrinter } from './requests.js'
+import { displayTime } from './utils'
 
-import { displayTime } from './utils.js'
+@Component
+export default class App extends Vue {
+	get canClean() {
+		return this.jobs.some(job => job.TimeCompleted !== null);
+	}
 
-export default {
-	computed: {
-		canClean() {
-			return this.jobs.some(job => job.TimeCompleted !== null);
-		}
-	},
-	data() {
-		return {
-            errorMessage: 'Attemping to connect...',
-			jobFields: [
-				{ key: 'Filename' },
-				{ key: 'TimeCreated', formatter: (value) => value ? (new Date(value)).toLocaleString() : 'n/a' },
-				{ key: 'Hostname', label: 'Printer' },
-				{ key: 'Progress' },
-				{ key: 'Time', label: 'Time Left / Completed' },
-				{ key: 'ResumeRepeat', label: '' },
-				{ key: 'PauseCancelDelete', label: '' }
-			],
-			jobs: [],
-			currentJobPage: 1,
-			printerFields: [
-				{ key: 'Name', sortable: true },
-				{ key: 'Hostname', sortable: true },
-				{ key: 'SuspendResume', label: '', sortable: false },
-				{ key: 'Delete', label: '', sortable: false }
-			],
-			printers: []
-		}
-    },
+	public errorMessage: string | null = 'Attempting to connect...';
+
+	public jobFields: BvTableFieldArray = [
+		{ key: 'Filename' },
+		{ key: 'TimeCreated', formatter: (value) => value ? (new Date(value)).toLocaleString() : 'n/a' },
+		{ key: 'Hostname', label: 'Printer' },
+		{ key: 'Progress' },
+		{ key: 'Time', label: 'Time Left / Completed' },
+		{ key: 'ResumeRepeat', label: '' },
+		{ key: 'PauseCancelDelete', label: '' }
+	];
+
+	public jobs: Array<Job> = [];
+
+	public currentJobPage = 1;
+
+	public printerFields: BvTableFieldArray = [
+		{ key: 'Name', sortable: true },
+		{ key: 'Hostname', sortable: true },
+		{ key: 'SuspendResume', label: '', sortable: false },
+		{ key: 'Delete', label: '', sortable: false }
+	];
+
+	public printers: Array<Printer> = [];
+
 	mounted() {
 		// Start querying the print farm
 		this.updateLoop();
-	},
-	methods: {
-		getJobIcon(item) {
-			if (item.Paused) {
+	}
+
+	getJobIcon(item: Job): string {
+		if (item.Paused) {
+			return 'pause';
+		}
+		if (item.TimeCompleted) {
+			return item.Cancelled ? 'x' : 'check';
+		}
+		if (item.Hostname) {
+			if (this.printers.some(printer => (printer.Hostname === item.Hostname) &&
+				(printer.Status === 'pausing') || (printer.Status === 'paused') || (printer.Status === 'resuming') || (printer.Status === 'cancelling'))
+			) {
 				return 'pause';
 			}
-			if (item.TimeCompleted) {
-				return item.Cancelled ? 'x' : 'check';
-			}
-			if (item.Hostname) {
-				if (this.printers.some(printer => (printer.Hostname === item.Hostname) &&
-					(printer.Status === 'pausing') || (printer.Status === 'paused') || (printer.Status === 'resuming') || (printer.Status === 'cancelling'))
-				) {
-					return 'pause';
-				}
-				return 'play-fill';
-			}
-			return 'asterisk';
-		},
-		getPrinterName(hostname) {
-			const printer = this.printers.find(printer => printer.Hostname === hostname);
-			return printer ? printer.Name : hostname;
-		},
-		getJobProgressVariant(item) {
-			if (item.TimeCompleted) {
-				return item.Cancelled ? 'danger' : 'success';
-			}
-			if (!item.Hostname || item.Paused || this.printers.some(printer => (printer.Hostname === item.Hostname) && ((printer.Status === 'pausing') || (printer.Status === 'paused') || (printer.Status === 'resuming') || (printer.Status === 'cancelling')))
-			) {
-				return 'warning';
-			}
-			return 'primary';
-		},
-		formatTime(item) {
-			if (item.TimeCompleted) {
-				return (new Date(item.TimeCompleted)).toLocaleString();
-			}
-			if (item.TimeLeft) {
-				return `${displayTime(item.TimeLeft)} remaining`;
-			}
-			return '';
-		},
-		getPrinterIcon(item) {
-			return item.Online ? 'check' : 'x';
-		},
-		async updateLoop() {
-			// Get live values
-			try {
-				this.jobs = await getQueue();
-				this.printers = await getPrinters();
+			return 'play-fill';
+		}
+		return 'asterisk';
+	}
 
-				this.errorMessage = null;
-			} catch (e) {
-				this.jobs = this.printers = [];
-				this.errorMessage = e.toString();
-			}
+	getPrinterName(hostname: string): string {
+		const printer = this.printers.find(printer => printer.Hostname === hostname);
+		return printer ? printer.Name : hostname;
+	}
 
-			// Update once a second
-			setTimeout(this.updateLoop, 1000);
-		},
-		async cleanUp() {
-			try {
-				await cleanUp();
-				this.jobs = await getQueue();
-			} catch (e) {
-				alert(`Failed to clean up!\n\n${e.message}`);
+	getJobProgressVariant(item: Job): string {
+		if (item.TimeCompleted) {
+			return item.Cancelled ? 'danger' : 'success';
+		}
+		if (!item.Hostname || item.Paused || this.printers.some(printer => (printer.Hostname === item.Hostname) && ((printer.Status === 'pausing') || (printer.Status === 'paused') || (printer.Status === 'resuming') || (printer.Status === 'cancelling')))
+		) {
+			return 'warning';
+		}
+		return 'primary';
+	}
+
+	formatTime(item: Job): string {
+		if (item.TimeCompleted) {
+			return (new Date(item.TimeCompleted)).toLocaleString();
+		}
+		if (item.TimeLeft) {
+			return `${displayTime(item.TimeLeft)} remaining`;
+		}
+		return '';
+	}
+
+	getPrinterIcon(item: Printer): string {
+		return item.Online ? 'check' : 'x';
+	}
+
+	async updateLoop(): Promise<void> {
+		// Get live values
+		try {
+			this.jobs = await getQueue();
+			this.printers = await getPrinters();
+
+			this.errorMessage = null;
+		} catch (e) {
+			this.jobs = this.printers = [];
+			this.errorMessage = e as string;
+		}
+
+		// Update once a second
+		setTimeout(this.updateLoop, 1000);
+	}
+
+	async cleanUp(): Promise<void> {
+		try {
+			await cleanUp();
+			this.jobs = await getQueue();
+		} catch (e) {
+			alert(`Failed to clean up!\n\n${e as string}`);
+		}
+	}
+
+	async pauseFile(index: number): Promise<void> {
+		try {
+			await pauseFile(index);
+			this.jobs = await getQueue();
+		} catch (e) {
+			alert(`Failed to pause file!\n\n${e as string}`);
+		}
+	}
+
+	async resumeFile(index: number): Promise<void> {
+		try {
+			await resumeFile(index);
+			this.jobs = await getQueue();
+		} catch (e) {
+			alert(`Failed to resume file!\n\n${e as string}`);
+		}
+	}
+
+	async cancelFile(index: number): Promise<void> {
+		try {
+			await cancelFile(index);
+			this.jobs = await getQueue();
+		} catch (e) {
+			alert(`Failed to cancel file!\n\n${e as string}`);
+		}
+	}
+
+	async repeatFile(index: number): Promise<void> {
+		try {
+			await repeatFile(index);
+			this.jobs = await getQueue();
+		} catch (e) {
+			alert(`Failed to repeat file!\n\n${e as string}`);
+		}
+	}
+
+	async deleteFile(index: number): Promise<void> {
+		try {
+			await deleteFile(index);
+			this.jobs = await getQueue();
+		} catch (e) {
+			alert(`Failed to delete file!\n\n${e as string}`);
+		}
+	}
+
+	async suspendPrinter(hostname: string): Promise<void> {
+		try {
+			await suspendPrinter(hostname);
+			this.printers = await getPrinters();
+			if (this.printers.some(printer => printer.Hostname === hostname && printer.JobFile !== null)) {
+				alert('This printer will be suspended as soon as the current print job has finished');
 			}
-		},
-		async pauseFile(index) {
-			try {
-				await pauseFile(index);
-				this.jobs = await getQueue();
-			} catch (e) {
-				alert(`Failed to pause file!\n\n${e.message}`);
-			}
-		},
-		async resumeFile(index) {
-			try {
-				await resumeFile(index);
-				this.jobs = await getQueue();
-			} catch (e) {
-				alert(`Failed to resume file!\n\n${e.message}`);
-			}
-		},
-		async cancelFile(index) {
-			try {
-				await cancelFile(index);
-				this.jobs = await getQueue();
-			} catch (e) {
-				alert(`Failed to cancel file!\n\n${e.message}`);
-			}
-		},
-		async repeatFile(index) {
-			try {
-				await repeatFile(index);
-				this.jobs = await getQueue();
-			} catch (e) {
-				alert(`Failed to repeat file!\n\n${e.message}`);
-			}
-		},
-		async deleteFile(index) {
-			try {
-				await deleteFile(index);
-				this.jobs = await getQueue();
-			} catch (e) {
-				alert(`Failed to delete file!\n\n${e.message}`);
-			}
-		},
-		async suspendPrinter(hostname) {
-			try {
-				await suspendPrinter(hostname);
-				this.printers = await getPrinters();
-				if (this.printers.some(printer => printer.Hostname === hostname && printer.JobFile !== null)) {
-					alert('This printer will be suspended as soon as the current print job has finished');
-				}
-			} catch (e) {
-				alert(`Failed to suspend printer!\n\n${e.message}`);
-			}
-		},
-		async resumePrinter(hostname) {
-			try {
-				await resumePrinter(hostname);
-				this.printers = await getPrinters();
-			} catch (e) {
-				alert(`Failed to resume printer!\n\n${e.message}`);
-			}
-		},
-		async deletePrinter(hostname) {
-			try {
-				await deletePrinter(hostname);
-				this.printers = await getPrinters();
-			} catch (e) {
-				alert(`Failed to delete printer!\n\n${e.message}`);
-			}
+		} catch (e) {
+			alert(`Failed to suspend printer!\n\n${e as string}`);
+		}
+	}
+
+	async resumePrinter(hostname: string): Promise<void> {
+		try {
+			await resumePrinter(hostname);
+			this.printers = await getPrinters();
+		} catch (e) {
+			alert(`Failed to resume printer!\n\n${e as string}`);
+		}
+	}
+
+	async deletePrinter(hostname: string): Promise<void> {
+		try {
+			await deletePrinter(hostname);
+			this.printers = await getPrinters();
+		} catch (e) {
+			alert(`Failed to delete printer!\n\n${e as string}`);
 		}
 	}
 }

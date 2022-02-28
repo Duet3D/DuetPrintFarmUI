@@ -8,7 +8,7 @@
 <script>
 'use strict'
 
-import { addFile } from '../requests.js'
+import { addFile } from '../api/requests.ts'
 
 export default {
 	props: {

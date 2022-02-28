@@ -1,5 +1,3 @@
-'use strict';
-
 import Vue from 'vue'
 
 import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
