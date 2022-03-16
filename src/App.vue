@@ -155,6 +155,12 @@
                     </b-card>
                 </b-col>
             </b-row>
+
+			<b-row class="my-2">
+				<b-col class="text-center text-secondary">
+					Version {{ version }}
+				</b-col>
+			</b-row>
         </b-container>
 	</div>
 </template>
@@ -168,6 +174,7 @@ import { getPrinters, suspendPrinter, resumePrinter, deletePrinter } from './api
 import { Job, Printer } from './api/types';
 
 import { displayTime } from './utils'
+import pkg from '../package.json'
 
 @Component
 export default class App extends Vue {
@@ -199,6 +206,8 @@ export default class App extends Vue {
 	];
 
 	public printers: Array<Printer> = [];
+
+	public version = pkg.version;
 
 	mounted() {
 		// Start querying the print farm
